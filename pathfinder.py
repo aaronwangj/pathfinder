@@ -71,7 +71,18 @@ class Node:
         pygame.draw.rect(win, self.color, (self.x, self.y, self.width, self.width))
 
     def update_neighbors(self, grid):
-        pass
+        self.neighbors = []
+        if self.row < self.total_rows - 1 and not grid[self.row + 1][self.col].is_barrier():
+            self.neighbors.append(grid[self.row+1][self.col])
+
+        if self.row > 0 and not grid[self.row - 1][self.col].is_barrier():
+            self.neighbors.append(grid[self.row - 1][self.col])
+
+        if self.col < self.total_rows - 1 and not grid[self.row][self.col + 1].is_barrier():
+            self.neighbors.append(grid[self.row][self.col + 1])
+
+        if self.col > 0 and not grid[self.row][self.col - 1].is_barrier():
+            self.neighbors.append(grid[self.row][self.col - 1])
 
     def __lt__(self, other):
         return False
@@ -80,6 +91,52 @@ def h(p1, p2):
     x1, y1 = p1
     x2, y2 = p2
     return abs(x2 - x1) + abs(y2 - y1)
+
+def astar(draw, grid, start, end):
+    count = 0
+    os = PriorityQueue()
+    os.put((0, count, start))
+    origin = {}
+    g = {node: float("inf") for row in grid for node in row}
+    g[start] = 0
+    f = {node: float("inf") for row in grid for node in row}
+    f[start] = h(start.get_pos(), end.get_pos())
+
+    os_hash = {start}
+
+    while not os.empty():
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+        
+        current = os.get()[2]
+        os_hash.remove(current)
+
+        if current == end:
+            return True
+
+        for neighbor in current.neighbors:
+            temp_g = g[current] + 1
+
+            if temp_g < g[neighbor]:
+                origin[neighbor] = current
+                g[neighbor] = temp_g
+                f[neighbor] = temp_g + h(neighbor.get_pos(), end.get_pos())
+                if neighbor not in os_hash:
+                    count += 1
+                    os.put((f[neighbor], count, neighbor))
+                    os_hash.add(neighbor)
+                    neighbor.set_open()
+
+        draw()
+
+        if current != start:
+            current.set_closed()
+    
+    return False
+
+
+
 
 def set_grid(rows, width):
     grid = []
@@ -160,6 +217,15 @@ def main(win, width):
                     start = None
                 if node == end:
                     end = None
+
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE and not started:
+                    for row in grid:
+                        for node in row:
+                            node.update_neighbors(grid)
+
+                    astar(lambda: draw(win, grid, ROWS, width), grid, start, end)
+
 
     pygame.quit()
 
