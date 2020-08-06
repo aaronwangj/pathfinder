@@ -44,7 +44,7 @@ class Node:
         return self.color == ORANGE
 
     def is_end(self):
-        return self.color == PURPLE
+        return self.color == TURQUOISE
 
     def reset(self):
         self.color = WHITE
@@ -92,6 +92,13 @@ def h(p1, p2):
     x2, y2 = p2
     return abs(x2 - x1) + abs(y2 - y1)
 
+def draw_path(origin, end, draw):
+    while end in origin:
+        end = origin[end]
+        end.set_path()
+        draw()
+
+
 def astar(draw, grid, start, end):
     count = 0
     os = PriorityQueue()
@@ -113,6 +120,9 @@ def astar(draw, grid, start, end):
         os_hash.remove(current)
 
         if current == end:
+            draw_path(origin, end, draw)
+            end.set_end()
+            start.set_start()
             return True
 
         for neighbor in current.neighbors:
@@ -134,9 +144,6 @@ def astar(draw, grid, start, end):
             current.set_closed()
     
     return False
-
-
-
 
 def set_grid(rows, width):
     grid = []
@@ -180,7 +187,6 @@ def main(win, width):
 
     start = None
     end = None
-    started = False
     run = True
 
     while run:
@@ -188,9 +194,6 @@ def main(win, width):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
-
-            if started:
-                continue
             
             if pygame.mouse.get_pressed()[0]:
                 pos = pygame.mouse.get_pos()
@@ -219,12 +222,17 @@ def main(win, width):
                     end = None
 
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE and not started:
+                if event.key == pygame.K_SPACE and start and end:
                     for row in grid:
                         for node in row:
                             node.update_neighbors(grid)
 
                     astar(lambda: draw(win, grid, ROWS, width), grid, start, end)
+
+                if event.key == pygame.K_BACKSPACE:
+                    start = None
+                    end = None
+                    grid = set_grid(ROWS, width)
 
 
     pygame.quit()
