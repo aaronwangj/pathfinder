@@ -2,10 +2,12 @@ import math
 import pygame
 from queue import PriorityQueue
 
+#window
 WIDTH = 800
 WIN = pygame.display.set_mode((WIDTH,WIDTH))
 pygame.display.set_caption("Pathfinding Visualization")
 
+#colors
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLUE = (0, 255, 0)
@@ -17,6 +19,7 @@ ORANGE = (255, 165 ,0)
 GREY = (128, 128, 128)
 TURQUOISE = (64, 224, 208)
 
+#each square/node in the graph
 class Node:
     def __init__(self, row, col, width, total_rows):
         self.row = row
@@ -67,9 +70,11 @@ class Node:
     def set_path(self):
         self.color = PURPLE
 
+    #draws each node
     def draw(self, win):
         pygame.draw.rect(win, self.color, (self.x, self.y, self.width, self.width))
 
+    #updates neighbors as algorithm runs
     def update_neighbors(self, grid):
         self.neighbors = []
         if self.row < self.total_rows - 1 and not grid[self.row + 1][self.col].is_barrier():
@@ -87,18 +92,20 @@ class Node:
     def __lt__(self, other):
         return False
 
+#h function for a star
 def h(p1, p2):
     x1, y1 = p1
     x2, y2 = p2
     return abs(x2 - x1) + abs(y2 - y1)
 
+#draws path after algorithm runs
 def draw_path(origin, end, draw):
     while end in origin:
         end = origin[end]
         end.set_path()
         draw()
 
-
+#a star algorithm to find path
 def astar(draw, grid, start, end):
     count = 0
     os = PriorityQueue()
