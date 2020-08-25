@@ -8,16 +8,14 @@ WIN = pygame.display.set_mode((WIDTH,WIDTH))
 pygame.display.set_caption("Pathfinding Visualization")
 
 #colors
-RED = (255, 0, 0)
-GREEN = (0, 255, 0)
-BLUE = (0, 255, 0)
-YELLOW = (255, 255, 0)
+VISITED_COLOR = (51, 102, 255)
+NEIGHBOR_COLOR = (0, 0, 204)
 WHITE = (255, 255, 255)
-BLACK = (0, 0, 0)
-PURPLE = (128, 0, 128)
-ORANGE = (255, 165 ,0)
-GREY = (128, 128, 128)
-TURQUOISE = (64, 224, 208)
+WALL_COLOR = (105, 105, 105)
+PATH_COLOR = (255, 153, 51)
+START_COLOR = (0, 204 ,153)
+LINE_COLOR = (120, 120, 120)
+END_COLOR = (196, 77, 255)
 
 #each square/node in the graph
 class Node:
@@ -35,40 +33,40 @@ class Node:
         return self.row, self.col
 
     def is_open(self):
-        return self.color == GREEN
+        return self.color == NEIGHBOR_COLOR
 
     def is_closed(self):
-        return self.color == RED
+        return self.color == VISITED_COLOR
 
     def is_barrier(self):
-        return self.color == BLACK
+        return self.color == WALL_COLOR
 
     def is_start(self):
-        return self.color == ORANGE
+        return self.color == START_COLOR
 
     def is_end(self):
-        return self.color == TURQUOISE
+        return self.color == END_COLOR
 
     def reset(self):
         self.color = WHITE
 
     def set_open(self):
-        self.color = GREEN
+        self.color = NEIGHBOR_COLOR
     
     def set_closed(self):
-        self.color = RED
+        self.color = VISITED_COLOR
 
     def set_barrier(self):
-        self.color = BLACK
+        self.color = WALL_COLOR
 
     def set_start(self):
-        self.color = ORANGE
+        self.color = START_COLOR
 
     def set_end(self):
-        self.color = TURQUOISE
+        self.color = END_COLOR
 
     def set_path(self):
-        self.color = PURPLE
+        self.color = PATH_COLOR
 
     #draws each node
     def draw(self, win):
@@ -165,9 +163,9 @@ def set_grid(rows, width):
 def draw_grid(win, rows, width):
     gap = width // rows
     for i in range(rows):
-        pygame.draw.line(win, GREY, (0, i * gap), (width, i * gap))
+        pygame.draw.line(win, LINE_COLOR, (0, i * gap), (width, i * gap))
         for j in range(rows):
-            pygame.draw.line(win, GREY, (j * gap, 0), (j * gap, width))
+            pygame.draw.line(win, LINE_COLOR, (j * gap, 0), (j * gap, width))
 
 def draw(win, grid, rows, width):
     win.fill(WHITE)
@@ -240,7 +238,6 @@ def main(win, width):
                     start = None
                     end = None
                     grid = set_grid(ROWS, width)
-
 
     pygame.quit()
 
